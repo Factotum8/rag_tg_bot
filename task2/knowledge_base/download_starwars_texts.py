@@ -1,3 +1,5 @@
+import json
+
 from rdflib import Graph, Namespace, RDFS, Literal
 
 
@@ -76,14 +78,15 @@ def replace_words(docs: list[dict], map_: dict[str, str]) -> list[dict]:
             if k in doc["rag_text"].lower():
                 doc["rag_text"] = doc["rag_text"].lower().replace(k, v)
 
+    # return [doc["rag_text"].split("—") for doc in docs]
     return [doc["rag_text"] for doc in docs]
 
 
 if __name__ == "__main__":
     graph = Graph()
 
-    TTL_PATH = "./star_wars_planets_dataset.ttl"
-    NT_PATH = "./star_wars_planets_dataset.nt"
+    TTL_PATH = "star_wars_planets_dataset.ttl"
+    NT_PATH = "star_wars_planets_dataset.nt"
 
     graph.parse(TTL_PATH, format="turtle")
     graph.parse(NT_PATH, format="nt")
@@ -91,9 +94,11 @@ if __name__ == "__main__":
     docs = build_docs_from_graph(graph)
     rag_texts = replace_words(docs, NT_PATH)
 
-    with open("./star_wars_planets_dataset.txt", "w", encoding="utf-8") as f:
-        for line in rag_texts:
-            f.write(line + "\n")
+    with open("star_wars_planets_dataset.json", "w", encoding="utf-8") as f:
+        # for fname, describe in rag_texts:
+        #     f.write(name, "," + describe + "\n")
+
+        json.dump(rag_texts, f)
 
     # client, collection, embed_model = build_chroma_index(docs)
 

@@ -1,0 +1,17 @@
+/opt/homebrew/anaconda3/envs/rag_tg_bot/bin/python /Users/alex/Documents/projects/rag_tg_bot/task3/sentences.py
+Инициализируем модель эмбеддингов: sentence-transformers/all-MiniLM-L6-v2
+Коллекция уже содержит 1088 объектов, очищаем...
+Считаем эмбеддинги документов...
+Кладём в Chroma...
+Готово! В коллекции документов: 1088
+
+Query: Which carrot is the most common in hole pieces
+
+Top matches:
+dist=0.1620 | makeb — carrot in hole pieces
+dist=0.1751 | bestal three — hole pieces carrot
+dist=0.1869 | quell — carrot in hole pieces
+dist=0.1872 | anteevy — carrot in hole pieces
+dist=0.1886 | teth — carrot in hole pieces
+
+Process finished with exit code 0
