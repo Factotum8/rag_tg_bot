@@ -2,17 +2,6 @@ from openai import OpenAI
 
 client = OpenAI()
 
-# response = client.responses.create(
-#     model="gpt-5-mini",
-#     input="Привет! Объясни коротко, как работают LLM модели?"
-# )
-#
-# print(response.output_text)
-#
-#
-# from openai import OpenAI
-
-
 messages = [
     {"role": "system", "content": "Ты дружелюбный чат-бот."}
 ]
