@@ -1,0 +1,61 @@
+@startuml
+title RAG Index Update Pipeline (Docker + Cron + ChromaDB)
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam wrapWidth 220
+skinparam maxMessageSize 220
+
+actor "Ops/Dev" as ops
+
+folder "Host filesystem" as host {
+  file "Knowledge Base\nstar_wars_planets_dataset.json\n(../task2/knowledge_base/)" as kb
+  folder "Logs volume\n./logs/" as host_logs
+  folder "Chroma persistent volume\n./chroma_data/" as host_chroma
+}
+
+node "Docker Host" as docker_host {
+  node "Container: rag-indexer" as c {
+    component "cron (scheduler)\n(crontab /etc/cron.d/indexer-cron)" as cron
+    component "update_index.py\n(Indexer Script)" as script
+    database "ChromaDB\n(PersistentClient)\n/data/chroma" as chroma
+    artifact "STDOUT/STDERR\nredirected to\n/var/log/indexer.log" as log_file
+
+    component "Chunker\n(split text -> chunks)" as chunker
+    component "Embedding Model\nSentence-Transformers" as embedder
+    component "FAISS/HNSW Index\n(inside Chroma)" as index
+  }
+}
+
+' --- Scheduling / Trigger
+ops --> cron : deploy/run container\n(docker compose up -d)
+cron --> script : runs on schedule\n(e.g., 0 * * * *)\npython /app/update_index.py
+
+' --- Data flow
+kb --> script : scan source\n(new/changed docs via hash)
+script --> chunker : parse docs\n+ chunk_text()
+chunker --> script : chunks[]
+script --> embedder : encode(chunks)
+embedder --> script : vectors (embeddings)
+script --> chroma : upsert:\nadd(ids, docs, metadatas, embeddings)\n+ optional delete stale
+chroma --> index : maintain ANN index\n(HNSW/cosine)
+
+' --- Persistence
+chroma ..> host_chroma : persisted DB/index files\n(volume mount)
+log_file ..> host_logs : logs persisted\n(volume mount
+
+
+' --- Notes
+note right of script
+- Detect changes by SHA256 of doc text
+- Upsert = delete old chunks for doc_id (optional) + add new chunk vectors
+- IDs are deterministic: doc_id:hashprefix:chunk_index
+end note
+
+note left of cron
+Task execution:
+- Cron runs inside container
+- Schedule defined in /etc/cron.d/indexer-cron
+end note
+
+@enduml

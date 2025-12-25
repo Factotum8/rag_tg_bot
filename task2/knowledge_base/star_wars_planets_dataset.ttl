@@ -4176,7 +4176,7 @@
     wdt:P31 <http://www.wikidata.org/entity/Q108059870> ;
     wdt:P361 <http://www.wikidata.org/entity/Q7542043> .
 
-<http://www.wikidata.org/entity/Q131749313> rdfs:label "Listehol"@en ;
+<http://www.wikidata.org/entity/Q131749313> rdfs:label "listehol"@en ;
     schema1:description "planet in Star Wars"@en ;
     wdt:P1080 <http://www.wikidata.org/entity/Q19786052>,
         <http://www.wikidata.org/entity/Q3551295> ;

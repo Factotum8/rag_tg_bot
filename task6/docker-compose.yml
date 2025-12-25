@@ -1,0 +1,17 @@
+services:
+  rag-indexer:
+    build: .
+    environment:
+      SOURCE_PATH: /kb/star_wars_planets_dataset.json
+      CHROMA_DIR: /data/chroma
+      COLLECTION_NAME: starwars_planets
+      EMBED_MODEL_NAME: sentence-transformers/all-MiniLM-L6-v2
+      DELETE_STALE: "true"
+      CHUNK_SIZE: "800"
+      CHUNK_OVERLAP: "120"
+      LOG_LEVEL: INFO
+      LOG_FILE: /var/log/indexer.log
+    volumes:
+      - ../task2/knowledge_base:/kb:ro
+      - ./chroma_data:/data/chroma
+      - ./logs:/var/log
