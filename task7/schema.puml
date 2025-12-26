@@ -1,0 +1,116 @@
+@startuml
+title RAG Bot – Request Handling + Evaluation + Failure Points (Sequence)
+
+skinparam shadowing false
+skinparam ParticipantPadding 20
+skinparam BoxPadding 12
+skinparam maxMessageSize 220
+
+actor User as U
+participant "Telegram\n(Aiogram)" as TG
+participant "Bot Handler\n(chat())" as BH
+participant "RAG Orchestrator\n(ask())" as RAG
+participant "Embedder\n(Sentence-Transformers)" as EMB
+database "Vector DB\n(ChromaDB)" as VDB
+participant "LLM API\n(OpenAI gpt-5-mini)" as LLM
+participant "Evaluator\n(auto_tests / metrics)" as EV
+database "Logs/Artifacts\n(JSONL, stdout, files)" as LOG
+
+== Request handling ==
+U -> TG : Send message (question)
+TG -> BH : Update delivered
+BH -> RAG : ask(user_id, question)
+
+group Retrieval (RAG)
+  RAG -> EMB : encode(question)
+  alt Embedding failure
+    note right of EMB
+      Failure point:
+      - model not loaded
+      - runtime error / OOM
+      - invalid input type
+    end note
+    EMB --> RAG : Exception
+    RAG -> LOG : log error (embedding)
+    RAG --> BH : fallback error message
+    BH --> TG : "Ошибка, попробуй позже"
+    TG --> U : Error response
+  else Embedding OK
+    EMB --> RAG : query_embedding
+    RAG -> VDB : query(top_k, embedding)\ninclude docs+distances
+    alt Empty index / no results
+      note right of VDB
+        Failure point:
+        - collection missing
+        - index empty (count=0)
+        - no close neighbors
+      end note
+      VDB --> RAG : empty context
+      RAG -> LOG : log warning (empty context)
+    else Retrieved context
+      VDB --> RAG : docs[] + distances[]
+      alt Invalid / corrupted chunk
+        note right of RAG
+          Failure point:
+          - chunk is None / too large
+          - bad encoding
+          - injection-like content
+        end note
+        RAG -> LOG : log warning (invalid chunk)\nskip/sanitize
+      end alt
+    end alt
+  end alt
+end group
+
+group Prompt assembly
+  RAG -> RAG : build system prompt:\n- instructions\n- few-shot examples\n- RAG context (untrusted data)
+  note right of RAG
+    Failure point:
+    - context too long (token overflow)
+    - malformed message schema
+  end note
+end group
+
+group Generation
+  RAG -> LLM : responses.create(model, input=messages)
+  alt LLM/API failure
+    note right of LLM
+      Failure point:
+      - network / timeout
+      - rate limit / quota
+      - invalid API key
+      - model error
+    end note
+    LLM --> RAG : error/exception
+    RAG -> LOG : log error (LLM)
+    RAG --> BH : fallback error message
+    BH --> TG : "Ошибка, попробуй позже"
+    TG --> U : Error response
+  else LLM OK
+    LLM --> RAG : answer
+    RAG -> RAG : save to per-user history\n(trim last N turns)
+    RAG -> LOG : log success (latency, top_k, ids)
+    RAG --> BH : answer
+    BH --> TG : send answer
+    TG --> U : final answer
+  end alt
+end group
+
+== Evaluation (automatic testing / quality checks) ==
+EV -> BH : iterate test questions\n(call ask() directly)
+BH -> RAG : ask(user_id, question)
+
+RAG -> EV : answer + metadata\n(latency, retrieved_count, errors)
+EV -> LOG : write JSONL record:\nquestion, ok, latency_ms,\nanswer, error, retrieved_count
+
+alt Evaluation failure
+  note right of EV
+    Failure point:
+    - questions file malformed
+    - exceptions not caught
+    - output file permission issues
+  end note
+  EV -> LOG : log failure details
+end alt
+
+@enduml
