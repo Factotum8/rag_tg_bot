@@ -1,0 +1,29 @@
+/opt/homebrew/anaconda3/envs/rag_tg_bot/bin/python /Users/alex/Documents/projects/rag_tg_bot/tmp.py
+Loading checkpoint shards: 100%|██████████| 3/3 [00:14<00:00,  4.80s/it]
+Some parameters are on the meta device because they were offloaded to the disk.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+
+[INST] Объясни простыми словами, что такое RAG. [/INST] RAG (Recognition and Analysis of Grammar) – это система или метод, помогающий компьютеру понимать и анализировать грамматику языка, подобно тому, как человек понимает правила построения предложений и слов в своем родном языке. Это полезно для различных приложений, таких как автоматическая передача слов в другой язык или автоматическое корректирование ошибок в текстах. Раньше RAG использовался преимущественно в области искусственного интеллекта и лингвистики, но сейчас он также применяется в различных программах и технологиях, которые помогают людям писать и редактировать тексты.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+
+
+[INST] SaaS-платформа для моделирования промышленных объектов «Digital Twin». Расскажи историю создания таких систем. [/INST] The concept of Digital Twins in the context of Industrial Internet of Things (IIoT) and model-based industrial engineering has been evolving for several decades, with various milestones and key developments shaping its growth into what we know today as SaaS platforms for Digital Twin modeling of industrial objects. Here's a brief history:
+
+1. 1960s and 1970s: The roots of Digital Twin can be traced back to the 1960s when computer-aided design (CAD) systems were first introduced, providing the ability to create digital representations of physical objects. In the 1970s, computer simulation and model-based design gained popularity, allowing engineers to test and optimize their designs in a virtual environment.
+
+2. 1980s and 1990s: The introduction of computer-aided manufacturing (CAM) systems and computer-integrated manufacturing (CIM) concepts further extended the idea of digital representations of physical systems, bringing together design, simulation, manufacturing, and data management.
+
+3. Early 2000s: The term "Digital Twin" was first coined by
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+
+
+[INST] Что такое цифровые двойники в SCADA-системах. [/INST] В SCADA-системах (Supervisory Control and Data Acquisition) цифровые двойники (digital twins) - это виртуальные модели реальных объектов, процессов или систем. Цифровой двойник представляет собой точную копию физического объекта или процесса в виртуальном мире, который синхронизируется с реальным объектом в реальном времени.
+
+SCADA-система с цифровым двойником позволяет операторам моделировать, симулировать и анализировать процессы в реальном времени, без риска для реальной системы. Это полезно для планирования обслуживания, прогнозирования неполадок, анализа данных и оптимизации процессов.
+
+Цифровой двойник в SCADA-системе создается на основе реальных данных, получа
+
+Process finished with exit code 0
